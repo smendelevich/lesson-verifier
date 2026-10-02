@@ -26,7 +26,7 @@ ordered list of exercises.
           "id": "P01",
           "position": 1,
           "target_word": "חָלָב",
-          "gloss": "milk",
+          "translation": "milk",
           "instruction": "Sound it out, then say the whole word.",
           "audio_file": "chalav.mp3"
         }
@@ -39,7 +39,7 @@ ordered list of exercises.
           "id": "B01",
           "position": 1,
           "target_word": "חָלָב",
-          "gloss": "milk",
+          "translation": "milk",
           "image_file": "milk.png",
           "audio_file": "chalav.mp3",
           "beats": [
@@ -76,14 +76,14 @@ Source vs loaded
 5. MISSING_EXERCISE / EXTRA_EXERCISE: within a group
 6. WRONG_ORDER: same exercise, different position
 7. WORD_MISMATCH: target_word differs after normalization
-8. FIELD_MISMATCH: gloss, instruction, or exercise_type differs
+8. FIELD_MISMATCH: translation, instruction, or exercise_type differs
 9. ASSET_NAME_MISMATCH: audio_file or image_file name differs
 10. TILES_MISMATCH: body_tiles or coda_tiles differ (as sets)
 
 Consistency inside the loaded lesson (build_word)
 11. BEATS_DONT_SPELL_WORD: beats joined in order differ from target_word
 12. TILE_MISSING: a beat's body or coda is not in its tile list
-13. CROSS_GROUP_MISMATCH: the same gloss has different target_words in
+13. CROSS_GROUP_MISMATCH: the same translation has different target_words in
     different groups
 
 Optional
