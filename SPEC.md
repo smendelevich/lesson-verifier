@@ -134,9 +134,8 @@ will be adapted to the real system.
 
 ## Testing approach
 - Every rule has at least one test that triggers it and one that does not.
-- Hebrew edge cases: look-alike encodings (must pass), different vowel
-  (must fail), final-form letters, mixed Hebrew/English, empty strings.
-- Tests are written from this spec, not from the implementation.
+- Hebrew edge cases: look-alike encodings (NO issue reported), different vowel
+  (WORD_MISMATCH reported), final-form letters, mixed Hebrew/English, empty strings.
 - All tests pass locally and on GitHub Actions.
 
 ## Definition of done
