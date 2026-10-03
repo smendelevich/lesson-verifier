@@ -58,12 +58,41 @@ Terms: a beat is a syllable. Its body is a consonant with its vowel.
 Its coda (optional) is the closing consonant. Beats are listed in
 reading order.
 
+## Background: Hebrew text and look-alike encodings
+
+In Hebrew with nikud (vowel marks), a letter and its marks are SEPARATE
+characters in the file. For example, בַּ is stored as three characters:
+ב (U+05D1) + dagesh (U+05BC) + patah (U+05B7).
+
+Because marks are separate characters, the same word can be stored in
+more than one way, and the versions look identical on screen:
+
+1. Different mark order:
+   ב + dagesh + patah   vs   ב + patah + dagesh
+2. Single-character form vs. letter + mark:
+   שׁ as one character (U+FB2A)   vs   ש (U+05E9) + shin dot (U+05C1)
+
+These are "look-alike encodings". A plain string comparison says they
+are different. For a lesson, they ARE the same word, so reporting them
+would be a false alarm.
+
+Unicode NFC normalization converts all such versions to one standard
+form. The tool normalizes both sides with NFC before any comparison.
+
+NFC does NOT hide real differences:
+- A different vowel (חָלָב vs חֶלָב) is still different after NFC.
+- Final-form letters (ן ך ם ף ץ) are different characters from their
+  regular forms (נ כ מ פ צ). NFC does not merge them.
+
+Note for readers who don't know Hebrew: you cannot tell look-alike
+encodings apart visually. Always compare the characters (code points),
+not the rendered text.
+
 ## Text comparison rule
-Hebrew text is normalized (Unicode NFC) on both sides before any
-comparison.
-- Same word encoded differently (nikud order, presentation forms) = NO issue.
-- Different after normalization (a different letter or vowel) = issue.
-- Final-form letters (ן ך ם ף ץ) are different from their regular forms.
+Normalize Hebrew text (NFC) on both sides before any comparison.
+See "Background: Hebrew text and look-alike encodings".
+- Look-alike encodings of the same word: verifier reports NO issue.
+- A different letter or vowel: verifier reports WORD_MISMATCH.
 
 ## Rules
 File level
