@@ -151,15 +151,16 @@ See "Background: Hebrew text and look-alike encodings".
     directory, not in subfolders.
 
 ## Output
-One line per issue: file, group id, exercise id, rule code, message.
+- One line per issue: file, group id, exercise id, rule code, message.
 - file is source or loaded. For source vs loaded issues, file is loaded.
 - Group id and exercise id are empty when they don't apply or are
   unknown (for example MISSING_GROUP has no exercise id; a missing id
   can't be printed).
---format json for machine-readable output.
-Hebrew must stay readable in the output (text and JSON), not escaped
-or garbled.
-Exit code: 0 = no issues, 1 = issues found, 2 = file or usage error.
+- --format json for machine-readable output.
+- Hebrew must stay readable in the output (text and JSON), not escaped
+  or garbled.
+- Issues are printed to stdout. Error messages (exit code 2) go to stderr.
+- Exit code: 0 = no issues, 1 = issues found, 2 = file or usage error.
 
 ## Errors
 - File missing, unreadable, or not valid JSON: print an error, exit 2.
