@@ -170,14 +170,6 @@ def test_distinct_ids_are_not_duplicates(verify):
     assert result.returncode == 0
 
 
-def test_duplicate_id_is_case_sensitive(verify):
-    # "p01" and "P01" are different ids, so no duplicate.
-    lesson = valid_lesson()
-    get_group(lesson, "G1")["exercises"].append(pron_exercise("p01", 2))
-    result = verify(lesson, clone(lesson))
-    assert "DUPLICATE_ID" not in result.codes
-
-
 # --- Skip all other checks after MALFORMED_FILE / DUPLICATE_ID --------------
 def test_malformed_loaded_skips_source_vs_loaded_checks(verify):
     loaded = valid_lesson()

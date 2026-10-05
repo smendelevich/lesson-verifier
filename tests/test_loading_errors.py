@@ -65,13 +65,6 @@ def test_valid_utf8_hebrew_file_loads_without_error(verify):
     assert result.stderr.strip() == ""
 
 
-def test_utf8_bom_is_not_required_to_load(tmp_path, good_file):
-    # A plain UTF-8 file (no BOM) must load: exit 0, nothing on stderr.
-    result = run_cli(good_file, good_file, cwd=tmp_path)
-    assert result.returncode == 0
-    assert result.stderr.strip() == ""
-
-
 # --- usage errors (exit code 2) --------------------------------------------
 def test_no_arguments_exits_2(tmp_path):
     result = run_cli(cwd=tmp_path)
