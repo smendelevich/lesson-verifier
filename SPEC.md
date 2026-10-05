@@ -13,13 +13,16 @@ It also checks that each exercise is consistent with itself.
   the system holds.
 
 ## Lesson file format (JSON)
+Files are UTF-8 encoded. The tool reads them as UTF-8.
 A lesson has ordered groups. Each group has one exercise_type and an
 ordered list of exercises.
 
+```json
 {
   "lesson_id": "L01",
   "groups": [
     {
+      "group_id": "G1",
       "exercise_type": "pronunciation",
       "exercises": [
         {
@@ -33,6 +36,7 @@ ordered list of exercises.
       ]
     },
     {
+      "group_id": "G2",
       "exercise_type": "build_word",
       "exercises": [
         {
@@ -53,10 +57,20 @@ ordered list of exercises.
     }
   ]
 }
-
+```
 Terms: a beat is a syllable. Its body is a consonant with its vowel.
 Its coda (optional) is the closing consonant. Beats are listed in
 reading order.
+
+## Required fields
+- Lesson: lesson_id, groups
+- Group: group_id, exercise_type, exercises
+- Exercise, type pronunciation: id, position, target_word,
+  translation, instruction, audio_file
+- Exercise, type build_word: id, position, target_word, translation,
+  image_file, audio_file, beats, body_tiles, coda_tiles
+- Beat: body (coda is optional)
+
 
 ## Background: Hebrew text and look-alike encodings
 
@@ -94,35 +108,69 @@ See "Background: Hebrew text and look-alike encodings".
 - Look-alike encodings of the same word: verifier reports NO issue.
 - A different letter or vowel: verifier reports WORD_MISMATCH.
 
-## Rules
-File level
-1. MALFORMED_FILE: invalid JSON or a required field is missing
-2. DUPLICATE_ID: the same exercise id appears twice in one file
+## Matching
+- Groups are matched by group_id. Exercises are matched by id within
+  the matched group.
+- A group_id or an exercise id that appears more than once in one file is DUPLICATE_ID.
+- Group order is the order in the groups list. Exercise order is the
+  position field (WRONG_ORDER if positions differ).
 
-Source vs loaded
+## Comparing
+- For each matched pair (group or exercise), every field is compared.
+- Hebrew text fields (target_word, beats.body, beats.coda, body_tiles, coda_tiles) 
+  are compared after NFC normalization; other text (such as translation)
+  is compared as is.
+- Lists of tiles are compared as sets; beats are compared in order.
+- A field that has no specific rule below is reported as FIELD_MISMATCH.
+
+## Rules
+#### File level:
+1. MALFORMED_FILE: a required field is missing, or exercise_type is unknown
+2. DUPLICATE_ID: the same exercise id or group id appears more than once in one file
+
+#### Source vs loaded:
 3. MISSING_GROUP / EXTRA_GROUP: a group is in one file and not the other
 4. WRONG_GROUP_ORDER: same groups, different order
 5. MISSING_EXERCISE / EXTRA_EXERCISE: within a group
 6. WRONG_ORDER: same exercise, different position
 7. WORD_MISMATCH: target_word differs after normalization
-8. FIELD_MISMATCH: translation, instruction, or exercise_type differs
+8. FIELD_MISMATCH: any other field differs, for example translation, instruction, exercise_type.
 9. ASSET_NAME_MISMATCH: audio_file or image_file name differs
 10. TILES_MISMATCH: body_tiles or coda_tiles differ (as sets)
+11. BEATS_MISMATCH: beats differ between source and loaded (in order)
 
-Consistency inside the loaded lesson (build_word)
-11. BEATS_DONT_SPELL_WORD: beats joined in order differ from target_word
-12. TILE_MISSING: a beat's body or coda is not in its tile list
-13. CROSS_GROUP_MISMATCH: the same translation has different target_words in
-    different groups
+#### Consistency inside the loaded lesson (checked on the loaded file only) (build_word):
+12. BEATS_DONT_SPELL_WORD: the beats joined in order (for each beat,
+    body then coda) differ from target_word after NFC normalization.
+13. TILE_MISSING: a beat's body or coda is not in its tile list
 
-Optional
-14. ASSET_MISSING (only with --assets-dir): a referenced audio or image
-    file does not exist
+#### Optional:
+14. ASSET_MISSING (only with --assets-dir, loaded file only): an
+    audio_file or image_file named in the loaded lesson does not exist
+    in the assets directory. Names are looked up directly in that
+    directory, not in subfolders.
 
 ## Output
-One line per issue: group, exercise id, rule code, message.
+One line per issue: file, group id, exercise id, rule code, message.
+- file is source or loaded. For source vs loaded issues, file is loaded.
+- Group id and exercise id are empty when they don't apply or are
+  unknown (for example MISSING_GROUP has no exercise id; a missing id
+  can't be printed).
 --format json for machine-readable output.
+Hebrew must stay readable in the output (text and JSON), not escaped
+or garbled.
 Exit code: 0 = no issues, 1 = issues found, 2 = file or usage error.
+
+## Errors
+- File missing, unreadable, or not valid JSON: print an error, exit 2.
+- Valid JSON with a missing required field: report MALFORMED_FILE and
+  say where in the message (for example "groups[0].exercises[1]: missing
+  target_word"). Exit 1.
+- If either file has MALFORMED_FILE or DUPLICATE_ID issues, report them
+  and skip all other checks, because checking broken data gives
+  unreliable results.
+- An exercise_type other than pronunciation or build_word:
+  report MALFORMED_FILE ("unknown exercise_type").
 
 ## Usage
 python verify.py source.json loaded.json [--assets-dir DIR] [--format text|json]
